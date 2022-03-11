@@ -37,6 +37,9 @@ import           GHC.TypeLits
 import           Network.HTTP.Media         (MediaType)
 import           Servant.API
 import           Servant.API.Description    (FoldDescription, reflectDescription)
+#if MIN_VERSION_servant(0,19,0)
+import           Servant.API.Generic        (ToServantApi)
+#endif
 import           Servant.API.Modifiers      (FoldRequired)
 
 import           Servant.OpenApi.Internal.TypeLevel.API
@@ -414,6 +417,11 @@ instance (ToSchema a, Accept ct, HasOpenApi sub, KnownSymbol (FoldDescription mo
 #if MIN_VERSION_servant(0,18,2)
 instance (HasOpenApi sub) => HasOpenApi (Fragment a :> sub) where
   toOpenApi _ = toOpenApi (Proxy :: Proxy sub)
+#endif
+
+#if MIN_VERSION_servant(0,19,0)
+instance (HasOpenApi (ToServantApi api)) => HasOpenApi (NamedRoutes api) where
+  toOpenApi _ = toOpenApi (Proxy :: Proxy (ToServantApi api))
 #endif
 
 -- =======================================================================
